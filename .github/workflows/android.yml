@@ -1,0 +1,22 @@
+name: Android APK
+on:
+  workflow_dispatch:
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '11.0.x' }
+      - run: dotnet workload install android
+      - run: >
+          dotnet publish GalaxyBudsClient.Android
+          -f net11.0-android37.0 -c Release -r android-arm64
+          -p:IsAndroid=true -p:AcceptAndroidSDKLicenses=true
+          -p:AndroidSdkDirectory=$HOME/android-sdk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GalaxyBudsClient-APK
+          path: GalaxyBudsClient.Android/bin/Release/net11.0-android37.0/android-arm64/publish/*-Signed.apk
